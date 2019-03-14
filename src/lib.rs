@@ -1,11 +1,13 @@
 mod lua;
 
+pub mod standard;
+
 use std::error::Error;
 use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
 
-use lua::{Container};
+pub use lua::{ScriptContainer, Script};
 
 #[cfg(test)]
 mod tests {
@@ -17,7 +19,7 @@ mod tests {
 
 
 pub struct LuaBuilder {
-    containers: Vec<Box<dyn Container>>,
+    containers: Vec<ScriptContainer>,
 }
 
 impl LuaBuilder {
@@ -27,10 +29,14 @@ impl LuaBuilder {
         }
     }
 
+    pub fn push_container(&mut self, container: ScriptContainer) {
+        self.containers.push(container);
+    }
+
     fn build_script(&self) -> String {
         let mut output = String::new();
         for container in &self.containers {
-            output.push_str(format!("{}\n", container.to_lua()).as_str());
+            output.push_str(format!("{}\n", container).as_str());
         }
         output
     }
